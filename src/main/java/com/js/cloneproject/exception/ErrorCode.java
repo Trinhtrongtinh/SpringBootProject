@@ -8,7 +8,8 @@ public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized Exception"),
     USER_EXISTED(1003, "User already exists"),
     USER_NOT_EXISTED(1004, "User not exists"),
-    INVALID_PASSWORD(1002,"Password length at least 8 characters");
+    INVALID_PASSWORD(1002,"Password length at least 8 characters"),
+    UNAUTHENTICATED(1001, "Unauthenticated"),;
     private int code;
     private String message;
 
