@@ -4,6 +4,7 @@ import com.js.cloneproject.dto.request.UserCreationRequest;
 import com.js.cloneproject.dto.request.UserUpdateRequest;
 import com.js.cloneproject.dto.response.UserResponse;
 import com.js.cloneproject.entity.User;
+import com.js.cloneproject.enums.Role;
 import com.js.cloneproject.exception.AppException;
 import com.js.cloneproject.exception.ErrorCode;
 import com.js.cloneproject.mapper.UserMapper;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -33,6 +35,9 @@ public class UserService {
         User user = userMapper.toUser(request);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+        user.setRoles(roles);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
@@ -46,9 +51,7 @@ public class UserService {
         );
     }
 
-    public UserResponse updateUserById(String id, UserUpdateRequest request) {
-        User user = new User();
-        userMapper.updateUser(user,request);
+    public UserResponse updateUserById(String id, UserUpdateRequest request) {f
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.toUserResponse(userRepository.save(user));

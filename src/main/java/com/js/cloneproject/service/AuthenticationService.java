@@ -1,24 +1,30 @@
 package com.js.cloneproject.service;
 
 import com.js.cloneproject.dto.request.AuthenticationRequest;
+import com.js.cloneproject.dto.request.IntrospectRequest;
 import com.js.cloneproject.dto.response.AuthenticationResponse;
+import com.js.cloneproject.dto.response.IntrospectResponse;
 import com.js.cloneproject.entity.User;
 import com.js.cloneproject.exception.AppException;
 import com.js.cloneproject.exception.ErrorCode;
 import com.js.cloneproject.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -30,8 +36,10 @@ import java.util.Date;
 @Service
 public class AuthenticationService {
     UserRepository userRepository;
+
     @NonFinal
-    protected static final String SIGNED_KEY = "Oqwt0t4BAWFtrytZY3w8TjZI3ZfxPFKHXKOYELNtEN/dPgrRKk+1YvGve3nFV/oZ\n";
+    @Value("${jwt.signerKey}")
+    protected String SIGNED_KEY;
     public AuthenticationResponse  authenticate(AuthenticationRequest authenticationRequest) {
         User user = userRepository.findByUsername(authenticationRequest.getUsername())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -70,5 +78,17 @@ public class AuthenticationService {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
+        var token = request.getToken();
+
+        JWSVerifier verifier = new MACVerifier(SIGNED_KEY.getBytes());
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        Date expireTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        var verified = signedJWT.verify(verifier);
+        return IntrospectResponse.builder()
+                .valid(verified && expireTime.after(new Date()))
+                .build();
     }
 }

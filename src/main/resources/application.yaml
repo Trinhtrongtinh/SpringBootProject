@@ -1,0 +1,27 @@
+# ===============================
+# = DATA SOURCE
+# ===============================
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/identity
+    username: admin
+    password: admin
+
+  # ===============================
+  # = JPA / HIBERNATE
+  # ===============================
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+  servlet:
+    context-path: /identity
+
+jwt:
+  signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"

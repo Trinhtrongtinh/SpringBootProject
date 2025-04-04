@@ -1,37 +1,30 @@
 package com.js.cloneproject.entity;
-
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-@Setter
-@Getter
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Data
 @Entity
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    private String username;
-    private String password;
-    private String firstName;
-    private String lastName;
-    private LocalDate birthDate;
-
-
-    public User(String username, String password, String firstName, String lastName, LocalDate birthDate) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthDate = birthDate;
-    }
-
-    public User() {
-
-    }
-
+    String id;
+    String username;
+    String password;
+    String firstName;
+    String lastName;
+    LocalDate birthDate;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    Set<String> roles = new HashSet<>();
 }
