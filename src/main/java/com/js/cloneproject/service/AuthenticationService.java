@@ -58,7 +58,7 @@ public class AuthenticationService {
     }
 
     String generateJWT(String username){
-        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .issuer("trongtinh_36")

@@ -51,7 +51,8 @@ public class UserService {
         );
     }
 
-    public UserResponse updateUserById(String id, UserUpdateRequest request) {f
+    public UserResponse updateUserById(String id, UserUpdateRequest request) {
+        User user = new User();
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.toUserResponse(userRepository.save(user));
