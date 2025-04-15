@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 
 @Slf4j
@@ -49,7 +50,7 @@ public class AuthenticationService {
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-        var token = generateJWT(authenticationRequest.getUsername());
+        var token = generateJWT(user);
 
         return AuthenticationResponse.builder()
                 .token(token)
@@ -57,16 +58,16 @@ public class AuthenticationService {
                 .build();
     }
 
-    String generateJWT(String username){
+    String generateJWT(User user){
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(user.getUsername())
                 .issuer("trongtinh_36")
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                 ))
-                .claim("CustomClaim","Custom")
+                .claim("scope",buildScope(user))
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(jwsHeader,payload);
@@ -80,6 +81,11 @@ public class AuthenticationService {
 
     }
 
+    public String buildScope(User user){
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        user.getRoles().forEach(stringJoiner::add);
+        return stringJoiner.toString();
+    }
     public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
         var token = request.getToken();
 

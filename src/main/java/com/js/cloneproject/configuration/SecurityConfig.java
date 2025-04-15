@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -30,17 +32,28 @@ public class SecurityConfig {
     private String signerKey;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                .permitAll()
-                .anyRequest()
-                .authenticated());
+        httpSecurity.authorizeHttpRequests(request ->
+                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ROLE_ADMIN")
+                        .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(jwtDecoder()))
+                        .decoder(jwtDecoder())
+                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
         );
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return converter;
     }
 
     @Bean
