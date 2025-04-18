@@ -1,6 +1,7 @@
 package com.js.cloneproject.dto.request;
 
 import com.js.cloneproject.exception.ErrorCode;
+import com.js.cloneproject.validator.DobConstraint;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,6 +20,8 @@ public class UserCreationRequest {
     String password;
     String firstName;
     String lastName;
+
+    @DobConstraint(min=18, message = "INVALID_DOB")
     LocalDate birthDate;
 
 }

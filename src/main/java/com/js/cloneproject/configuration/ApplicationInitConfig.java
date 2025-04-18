@@ -1,7 +1,7 @@
 package com.js.cloneproject.configuration;
 
+import com.js.cloneproject.entity.Role;
 import com.js.cloneproject.entity.User;
-import com.js.cloneproject.enums.Role;
 import com.js.cloneproject.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +24,12 @@ public class ApplicationInitConfig {
     ApplicationRunner ApplicationRunner(UserRepository userRepository) {
         return args -> {
             if(userRepository.findByUsername("admin").isEmpty()) {
-                var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+                Role role = new Role();
+                role.setName("ADMIN");
                 User user = User.builder()
                         .username("admin")
                         .password(passwordEncoder.encode("admin"))
-                        .roles(roles)
+//                        .roles(role)
                         .build();
                 userRepository.save(user);
                 log.warn("User has been created with default password: admin, please change it");

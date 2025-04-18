@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)//annotation giup loai bo cac gia tri null ra khoi response
 public class ApiResponse<T> {
-    int code;
+    int code = 1001;
     String message;
     T result;
 }
